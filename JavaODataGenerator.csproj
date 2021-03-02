@@ -1,0 +1,82 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Templates\**">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Templates\CORSFilter\Head.txt" />
+    <None Remove="Templates\EdmProvider\AddEntityProperties.txt" />
+    <None Remove="Templates\EdmProvider\AddEntitySets.txt" />
+    <None Remove="Templates\EdmProvider\AddEntitySetsToContainer.txt" />
+    <None Remove="Templates\EdmProvider\AddProperty.txt" />
+    <None Remove="Templates\EdmProvider\Body.txt" />
+    <None Remove="Templates\EdmProvider\FinalNames.txt" />
+    <None Remove="Templates\EdmProvider\Foot.txt" />
+    <None Remove="Templates\EdmProvider\Head.txt" />
+    <None Remove="Templates\EntityCollectionProcessor\Body.txt" />
+    <None Remove="Templates\EntityCollectionProcessor\Foot.txt" />
+    <None Remove="Templates\EntityCollectionProcessor\Head.txt" />
+    <None Remove="Templates\EntityProcessor\Body.txt" />
+    <None Remove="Templates\EntityProcessor\Foot.txt" />
+    <None Remove="Templates\EntityProcessor\Head.txt" />
+    <None Remove="Templates\FilterExpressionVisitor\Body.txt" />
+    <None Remove="Templates\FilterExpressionVisitor\Foot.txt" />
+    <None Remove="Templates\FilterExpressionVisitor\Head.txt" />
+    <None Remove="Templates\HibernateCap\AddProperty.txt" />
+    <None Remove="Templates\HibernateCap\Body.txt" />
+    <None Remove="Templates\HibernateCap\Foot.txt" />
+    <None Remove="Templates\HibernateCap\Head.txt" />
+    <None Remove="Templates\HibernateCap\SetProperties.txt" />
+    <None Remove="Templates\HibernateConfiguration\SQLServer.txt" />
+    <None Remove="Templates\ODataServlet\Body.txt" />
+    <None Remove="Templates\ODataServlet\Foot.txt" />
+    <None Remove="Templates\ODataServlet\Head.txt" />
+    <None Remove="Templates\PrimitiveProcessor\Body.txt" />
+    <None Remove="Templates\PrimitiveProcessor\Foot.txt" />
+    <None Remove="Templates\PrimitiveProcessor\Head.txt" />
+    <None Remove="Templates\Storage\Body.txt" />
+    <None Remove="Templates\Storage\CreateEntity.txt" />
+    <None Remove="Templates\Storage\DeleteEntity.txt" />
+    <None Remove="Templates\Storage\Foot.txt" />
+    <None Remove="Templates\Storage\GetEntities.txt" />
+    <None Remove="Templates\Storage\Head.txt" />
+    <None Remove="Templates\Storage\UpdateEntity.txt" />
+    <None Remove="Templates\Util\Body.txt" />
+    <None Remove="Templates\Util\Foot.txt" />
+    <None Remove="Templates\Util\Head.txt" />
+    <None Remove="Templates\WebXml\Head.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="log4net" Version="2.0.12" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="5.0.0" />
+    <PackageReference Include="Microsoft.OpenApi" Version="1.2.3" />
+    <PackageReference Include="Microsoft.OpenApi.Readers" Version="1.2.3" />
+    <PackageReference Include="System.Management" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="CSAc4yClassCore">
+      <HintPath>CSAc4yClassCore.dll</HintPath>
+    </Reference>
+    <Reference Include="CSAc4yUtilityFW">
+      <HintPath>CSAc4yUtilityFW.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>

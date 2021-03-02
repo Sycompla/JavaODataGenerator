@@ -1,0 +1,15 @@
+﻿
+   if(entityTypeName.equals(ET_#CLASSNAME#_FQN)){
+
+      CsdlProperty id = new CsdlProperty().setName("Id").setType(EdmPrimitiveTypeKind.Int32.getFullQualifiedName());
+      #addProperty#
+
+      CsdlPropertyRef propertyRef = new CsdlPropertyRef();
+      propertyRef.setName("Id");
+
+      entityType = new CsdlEntityType();
+      entityType.setName(ET_#CLASSNAME#_NAME);
+      entityType.setProperties(Arrays.asList(#propertyNameList#));
+      entityType.setKey(Arrays.asList(propertyRef));
+      
+    } 

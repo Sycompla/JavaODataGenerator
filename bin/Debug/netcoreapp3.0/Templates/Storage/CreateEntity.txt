@@ -1,0 +1,3 @@
+﻿		  if(edmEntitySet.getName().equals("#className#s")) {
+			  entity = new #className#HibernateCap().insert(entity);
+		  } 

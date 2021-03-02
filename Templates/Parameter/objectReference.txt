@@ -1,0 +1,5 @@
+﻿
+    <PlanObjectReference>
+      <namespaceName>#namespace#.</namespaceName>
+      <className>#className#</className>
+    </PlanObjectReference>

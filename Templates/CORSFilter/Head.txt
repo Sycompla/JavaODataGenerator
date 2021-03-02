@@ -1,0 +1,64 @@
+﻿package #package#.cors;
+
+import java.io.IOException;
+
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+public class CORSFilter implements Filter {
+
+	@Override
+	public void init(FilterConfig filterConfig) throws ServletException {
+		// TODO Auto-generated method stub
+
+	}
+    @Override
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
+        ServletException {
+      HttpServletRequest httpReq = (HttpServletRequest) request;
+      HttpServletResponse httpResp = (HttpServletResponse) response;/*
+      if (isOptionsMethod(httpReq) && !hasOriginHeader(httpReq)) {
+        ODataFilter.writeError(request,
+            new TeiidProcessingException(ODataPlugin.Util.gs(ODataPlugin.Event.TEIID16056)),
+            httpResp, 400);
+        return;
+      }*/
+      if (isPreflightRequest(httpReq)) {
+        httpResp.setHeader("Access-Control-Allow-Origin", httpReq.getHeader("Origin")); //$NON-NLS-1$ //$NON-NLS-2$
+        httpResp.setHeader("Access-Control-Allow-Credentials", "true"); //$NON-NLS-1$ //$NON-NLS-2$
+        httpResp.setHeader("Access-Control-Max-Age", "1800"); //$NON-NLS-1$ //$NON-NLS-2$
+        httpResp.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE"); //$NON-NLS-1$ //$NON-NLS-2$
+        httpResp.setHeader("Access-Control-Allow-Headers", "Content-Type,Accept,Origin,Authorization,x-csrf-token, odata-version, odata-maxversion"); //$NON-NLS-1$ //$NON-NLS-2$
+        httpResp.setStatus(204);
+      } else {
+        if (hasOriginHeader(httpReq)) {
+          httpResp.setHeader("Access-Control-Allow-Origin", httpReq.getHeader("Origin")); //$NON-NLS-1$ //$NON-NLS-2$
+          httpResp.setHeader("Access-Control-Allow-Credentials", "true"); //$NON-NLS-1$ //$NON-NLS-2$
+        }
+        chain.doFilter(httpReq, httpResp);
+      }
+    }
+	private boolean isPreflightRequest(HttpServletRequest httpReq) {
+	  return isOptionsMethod(httpReq) && hasOriginHeader(httpReq);
+	}
+    static boolean isOptionsMethod(HttpServletRequest httpReq) {
+        return "OPTIONS".equals(httpReq.getMethod()); //$NON-NLS-1$
+    }
+    static boolean hasOriginHeader(HttpServletRequest httpReq) {
+        String origin = httpReq.getHeader("Origin"); //$NON-NLS-1$
+        return origin != null && origin.trim().length() > 0;
+    }
+
+	@Override
+	public void destroy() {
+		// TODO Auto-generated method stub
+
+	}
+
+}

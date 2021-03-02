@@ -1,0 +1,6 @@
+﻿	      if (entitySetName.equals(ES_#CLASSNAME#S_NAME)) {
+
+	        entitySet = new CsdlEntitySet();
+	        entitySet.setName(ES_#CLASSNAME#S_NAME);
+	        entitySet.setType(ET_#CLASSNAME#_FQN);
+      } 

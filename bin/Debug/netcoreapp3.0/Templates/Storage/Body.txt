@@ -1,0 +1,245 @@
+﻿
+  private Util util = null;
+  private List<String> entityNames = new ArrayList();
+  private List<String> entitiesNames = new ArrayList();
+
+  public Storage() {
+    util = new Util();
+    FillListEntities();
+    FillListEntity();
+  }
+  
+  public void FillListEntities() {
+	  #fillListEntities#
+  }
+  public void FillListEntity() {
+	  #fillListEntity#
+  }
+  
+  public Boolean NameContains(String name) {
+	    return entityNames.contains(name);
+  }
+  
+  public Boolean NamesContain(String name) {
+	    return entitiesNames.contains(name);
+  }
+
+  /* PUBLIC FACADE */
+
+  public EntityCollection readEntitySetData(EdmEntitySet edmEntitySet) throws ODataApplicationException {
+
+    if (NamesContain(edmEntitySet.getName())) {
+      return getEntities(edmEntitySet.getName());
+    }
+
+    return null;
+  }
+
+  public Entity readEntityData(EdmEntitySet edmEntitySet, List<UriParameter> keyParams)
+      throws ODataApplicationException {
+
+    EdmEntityType edmEntityType = edmEntitySet.getEntityType();
+
+    if (NameContains(edmEntityType.getName())) {
+      return getEntity(edmEntityType, keyParams);
+    }
+
+    return null;
+  }
+
+  public Entity createEntityData(EdmEntitySet edmEntitySet, Entity entityToCreate, String rawServiceUri) {
+
+    EdmEntityType edmEntityType = edmEntitySet.getEntityType();
+
+    if (NameContains(edmEntityType.getName())) {
+      return createEntity(edmEntitySet, entityToCreate, rawServiceUri);
+    }
+
+    return null;
+  }
+
+  public void updateEntityData(EdmEntitySet edmEntitySet, List<UriParameter> keyParams, Entity updateEntity,
+      HttpMethod httpMethod) throws ODataApplicationException {
+
+    EdmEntityType edmEntityType = edmEntitySet.getEntityType();
+
+    if (NameContains(edmEntityType.getName())) {
+      updateEntity(edmEntityType, keyParams, updateEntity, httpMethod);
+    }
+  }
+
+  public void deleteEntityData(EdmEntitySet edmEntitySet, List<UriParameter> keyParams)
+      throws ODataApplicationException {
+
+    EdmEntityType edmEntityType = edmEntitySet.getEntityType();
+
+    if (NameContains(edmEntityType.getName())) {
+      deleteEntity(edmEntityType, keyParams);
+    }
+  }
+
+  /* INTERNAL */
+
+  private EntityCollection getEntities(String edmEntitySet) {
+	  EntityCollection retEntitySet = null;
+	  
+      #getEntities#
+
+    return retEntitySet;
+  }
+  
+  public Entity getRelatedEntity(EntityCollection collection) {
+	  if(collection.getEntities().size() < 1) {
+		  return null;
+	  }
+	  
+	  return collection.getEntities().get(0);
+  }
+  /*
+  public Entity getRelatedEntity(Entity sourceEntity, EdmEntityType expandEntityType) {
+
+	  List<Property> propertyList = sourceEntity.getProperties();
+	  int id = 0;
+	  
+	  for(Property property : propertyList) {
+		  if(property.getName().equals("ID")) {
+			  id = Integer.parseInt(property.getValue().toString());
+			  continue;
+		  }
+	  }
+	  
+	  if(expandEntityType.getName().equals("Category")) {
+		  return new ProductHibernateCap().getRelatedData(id);
+	  }
+	  
+	  return null;
+	  
+	  
+  }
+  
+  public EntityCollection getRelatedEntityCollection(Entity sourceEntity, EdmEntityType expandEdmType) {
+	  EntityCollection relatedEntities = new EntityCollection();
+	  List<Property> propertyList = sourceEntity.getProperties();
+	  int id = 0;
+	  
+	  for(Property property : propertyList) {
+		  if(property.getName().equals("ID")) {
+			  id = Integer.parseInt(property.getValue().toString());
+			  continue;
+		  }
+	  }
+	  
+	  relatedEntities = new CategoryHibernateCap().getRelatedCollection(id);
+	  return relatedEntities;
+  }
+  */
+  private Entity getEntity(EdmEntityType edmEntityType, List<UriParameter> keyParams)
+					throws ODataApplicationException {
+	  EntityCollection entitySet = null;
+
+      entitySet = getEntities(edmEntityType.getName() + "s");
+
+    Entity requestedEntity = Util.findEntity(edmEntityType, entitySet, keyParams);
+
+    if (requestedEntity == null) {
+      throw new ODataApplicationException("Entity for requested key doesn't exist",
+          HttpStatusCode.NOT_FOUND.getStatusCode(), Locale.ENGLISH);
+    }
+
+    return requestedEntity;
+  }
+
+  private Entity createEntity(EdmEntitySet edmEntitySet, Entity entity, String rawServiceUri) {
+	  
+	  EdmEntityType edmEntityType = edmEntitySet.getEntityType();
+	  int id = 0;
+
+	  try {
+        
+        #createEntity#
+		  
+		  HashMap<String, String> properties = util.propertiesToHashMap(entity);
+		  /*
+	    for(final Link link : entity.getNavigationLinks()) {
+	      final EdmNavigationProperty edmNavigationProperty = edmEntityType.getNavigationProperty(link.getTitle());
+	      final EdmEntitySet targetEntitySet = (EdmEntitySet) edmEntitySet.getRelatedBindingTarget(link.getTitle());
+	      
+	      if(edmNavigationProperty.isCollection() && link.getInlineEntitySet() != null) {
+	        for(final Entity nestedEntity : link.getInlineEntitySet().getEntities()) {
+	        	nestedEntity.addProperty(new Property(null, "CategoryID", ValueType.PRIMITIVE, properties.get("ID")));
+	        	System.out.println(nestedEntity);
+	          final Entity newNestedEntity = createEntityData(targetEntitySet, nestedEntity, rawServiceUri);
+	        }
+	      } else if(!edmNavigationProperty.isCollection() && link.getInlineEntity() != null){
+	        final Entity newNestedEntity = createEntityData(targetEntitySet, link.getInlineEntity(), rawServiceUri);
+	      }
+	    }
+	    */
+	  } catch (Exception exception) {
+		  exception.printStackTrace();
+	  }
+
+    return entity;
+
+  }
+
+  private void updateEntity(EdmEntityType edmEntityType, List<UriParameter> keyParams, Entity entity,
+      HttpMethod httpMethod) throws ODataApplicationException {
+
+    Entity updatedEntity = getEntity(edmEntityType, keyParams);
+    if (updatedEntity == null) {
+      throw new ODataApplicationException("Entity not found", HttpStatusCode.NOT_FOUND.getStatusCode(), Locale.ENGLISH);
+    }
+    List<Property> existingProperties = updatedEntity.getProperties();
+    for (Property existingProp : existingProperties) {
+      String propName = existingProp.getName();
+
+      if (isKey(edmEntityType, propName)) {
+        continue;
+      }
+
+      Property updateProperty = entity.getProperty(propName);
+      if (updateProperty == null) {
+        if (httpMethod.equals(HttpMethod.PATCH)) {
+          continue; // do nothing
+        } else if (httpMethod.equals(HttpMethod.PUT)) {
+          existingProp.setValue(existingProp.getValueType(), null);
+          continue;
+        }
+      }
+
+      existingProp.setValue(existingProp.getValueType(), updateProperty.getValue());
+    }
+
+    if (httpMethod.equals(HttpMethod.PATCH)) {
+
+        #updateEntity#
+
+    } 
+    
+  }
+
+  private void deleteEntity(EdmEntityType edmEntityType, List<UriParameter> keyParams)
+      throws ODataApplicationException {
+
+    Entity entity = getEntity(edmEntityType, keyParams);
+    if (entity == null) {
+      throw new ODataApplicationException("Entity not found", HttpStatusCode.NOT_FOUND.getStatusCode(), Locale.ENGLISH);
+    }
+
+    #deleteEntity#
+
+  }
+
+  /* HELPER */
+
+  private boolean isKey(EdmEntityType edmEntityType, String propertyName) {
+    List<EdmKeyPropertyRef> keyPropertyRefs = edmEntityType.getKeyPropertyRefs();
+    for (EdmKeyPropertyRef propRef : keyPropertyRefs) {
+      String keyPropertyName = propRef.getName();
+      if (keyPropertyName.equals(propertyName)) {
+        return true;
+      }
+    }
+    return false;
+  }

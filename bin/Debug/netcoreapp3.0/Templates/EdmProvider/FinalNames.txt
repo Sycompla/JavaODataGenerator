@@ -1,0 +1,4 @@
+﻿
+  public static final String ET_#CLASSNAME#_NAME = "#className#";
+  public static final FullQualifiedName ET_#CLASSNAME#_FQN = new FullQualifiedName(NAMESPACE, ET_#CLASSNAME#_NAME);
+  public static final String ES_#CLASSNAME#S_NAME = "#className#s";

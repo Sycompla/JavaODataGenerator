@@ -1,0 +1,29 @@
+﻿
+  private static final long serialVersionUID = 1L;
+  private static final Logger LOG = LoggerFactory.getLogger(ODataServlet.class);
+
+  @Override
+  protected void service(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
+
+    try {
+	    HttpSession session = req.getSession(true);
+	    Storage storage = (Storage) session.getAttribute(Storage.class.getName());
+	    if (storage == null) {
+	      storage = new Storage();
+	      session.setAttribute(Storage.class.getName(), storage);
+	    }
+        
+      OData odata = OData.newInstance();
+      ServiceMetadata edm = odata.createServiceMetadata(new ODataEdmProvider(), new ArrayList<EdmxReference>());
+      ODataHttpHandler handler = odata.createHandler(edm);
+      handler.register(new ODataEntityCollectionProcessor(storage));
+      handler.register(new ODataEntityProcessor(storage));
+      handler.register(new ODataPrimitiveProcessor(storage));
+
+      handler.process(req, resp);
+
+    } catch (RuntimeException e) {
+      LOG.error("Server Error occurred in ExampleServlet", e);
+      throw new ServletException(e);
+    }
+  }

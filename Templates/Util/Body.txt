@@ -1,0 +1,119 @@
+﻿
+  public static EdmEntitySet getEdmEntitySet(UriInfoResource uriInfo) throws ODataApplicationException {
+
+    List<UriResource> resourcePaths = uriInfo.getUriResourceParts();
+    if (!(resourcePaths.get(0) instanceof UriResourceEntitySet)) {
+      throw new ODataApplicationException("Invalid resource type for first segment.", HttpStatusCode.NOT_IMPLEMENTED
+          .getStatusCode(), Locale.ENGLISH);
+    }
+
+    UriResourceEntitySet uriResource = (UriResourceEntitySet) resourcePaths.get(0);
+
+    return uriResource.getEntitySet();
+  }
+
+  public static Entity findEntity(EdmEntityType edmEntityType, EntityCollection entitySet,
+      List<UriParameter> keyParams) throws ODataApplicationException {
+
+    List<Entity> entityList = entitySet.getEntities();
+
+    for (Entity entity: entityList) {
+      boolean foundEntity = entityMatchesAllKeys(edmEntityType, entity, keyParams);
+      if (foundEntity) {
+        return entity;
+      }
+    }
+
+    return null;
+  }
+
+  public static boolean entityMatchesAllKeys(EdmEntityType edmEntityType, Entity entity, List<UriParameter> keyParams)
+          throws ODataApplicationException {
+
+    for (final UriParameter key : keyParams) {
+      String keyName = key.getName();
+      String keyText = key.getText();
+      
+      EdmProperty edmKeyProperty = (EdmProperty) edmEntityType.getProperty(keyName);
+      Boolean isNullable = edmKeyProperty.isNullable();
+      Integer maxLength = edmKeyProperty.getMaxLength();
+      Integer precision = edmKeyProperty.getPrecision();
+      Boolean isUnicode = edmKeyProperty.isUnicode();
+      Integer scale = edmKeyProperty.getScale();
+      EdmType edmType = edmKeyProperty.getType();
+      EdmPrimitiveType edmPrimitiveType = (EdmPrimitiveType) edmType;
+
+      Object valueObject = entity.getProperty(keyName).getValue();
+
+      String valueAsString = null;
+      try {
+        valueAsString = edmPrimitiveType.valueToString(valueObject, isNullable, maxLength, precision, scale, isUnicode);
+      } catch (EdmPrimitiveTypeException e) {
+        throw new ODataApplicationException("Failed to retrieve String value", HttpStatusCode.INTERNAL_SERVER_ERROR
+            .getStatusCode(), Locale.ENGLISH, e);
+      }
+
+      if (valueAsString == null) {
+        return false;
+      }
+
+      boolean matches = valueAsString.equals(keyText);
+      if (!matches) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+  
+
+  public List<Entity> skipOptionMethod(SkipOption skipOption, EntityCollection entityCollection, List<Entity> EntityList) throws ODataApplicationException {
+	  List<Entity> entityList = EntityList;  
+	  if (skipOption != null) {
+	        int skipNumber = skipOption.getValue();
+	        if (skipNumber >= 0) {
+	            if(skipNumber <= entityCollection.getEntities().size()) {
+	                entityList = entityCollection.getEntities().subList(skipNumber, entityCollection.getEntities().size());
+	                
+	            } else {
+	                entityCollection.getEntities().clear();
+	            }
+	        } else {
+	            throw new ODataApplicationException("Invalid value for $skip", HttpStatusCode.BAD_REQUEST.getStatusCode(), Locale.ROOT);
+	        }
+	    }    
+	  return entityList;
+  }
+  
+  public List<Entity> topOptionMethod(TopOption topOption, EntityCollection entityCollection, List<Entity> EntityList) throws ODataApplicationException {
+	  List<Entity> entityList = EntityList;
+	  if (topOption != null) {
+	        int topNumber = topOption.getValue();
+	        if (topNumber >= 0) {
+	        	if(entityList == null || entityList.size() == 0) {
+		            if(topNumber <= entityCollection.getEntities().size()) {
+		                entityList = entityCollection.getEntities().subList(0, topNumber);
+		                
+		            }// else the client has requested more entities than available => return what we have  
+	        	} else {
+		            if(topNumber <= entityList.size()) {
+		                entityList = entityList.subList(0, topNumber);
+		                
+		            }        		
+	        	}
+	        } else {
+	            throw new ODataApplicationException("Invalid value for $top", HttpStatusCode.BAD_REQUEST.getStatusCode(), Locale.ROOT);
+	        }
+	    }
+	  return entityList;
+  }
+  
+  public HashMap<String, String> propertiesToHashMap(Entity entity) {
+	  HashMap<String, String> properties = new HashMap<String, String>();
+	  
+	  for(Property property : entity.getProperties()) {
+		  properties.put(property.getName(), property.getValue().toString());
+	  }
+	  
+	  return properties;
+  }

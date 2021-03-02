@@ -1,0 +1,8 @@
+﻿	
+	public #className#() {
+		
+	}
+
+	public #className#(#propertiesSmall#) {
+		#properties#
+	}

@@ -1,0 +1,8 @@
+﻿
+	public #type# get#propertyName#() {
+		return #propertyName#;
+	}
+
+	public void set#propertyName#(#type# #propertyNameSmall#) {
+		#propertyName# = #propertyNameSmall#;
+	}

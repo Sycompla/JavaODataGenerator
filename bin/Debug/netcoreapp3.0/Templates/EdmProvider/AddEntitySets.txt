@@ -1,0 +1,2 @@
+﻿
+    entitySets.add(getEntitySet(CONTAINER, ES_#CLASSNAME#S_NAME));

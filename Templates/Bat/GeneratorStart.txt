@@ -1,0 +1,92 @@
+﻿#rootDisk#
+dotnet tool install --global dotnet-ef
+
+set generatorDir=#generatorDirectory#
+set mainDir=#rootDirectory#
+set planObjectPath=%mainDir%#planObjectNamespace#
+set namespace=#namespace#
+
+cd %mainDir%
+dotnet new classlib -n #planObjectNamespace# -f netcoreapp3.1
+cd %generatorDir%
+CSODataGenerator.exe "PlanObject"
+cd %mainDir%\%planObjectNamespace%
+dotnet build
+
+cd %mainDir%
+dotnet new classlib -n %namespace%Cap -f netcoreapp3.1
+cd %namespace%Cap
+dotnet add package Microsoft.EntityFrameworkCore
+dotnet add package Microsoft.EntityFrameworkCore.SqlServer
+dotnet add package Microsoft.EntityFrameworkCore.Tools
+dotnet add package ReferencesToNuGet -v 1.2020.1015.3
+dotnet add reference %planObjectPath%
+cd %generatorDir%
+CSODataGenerator.exe "Cap"
+CSODataGenerator.exe "Context"
+cd %mainDir%\%namespace%Cap\
+dotnet build
+
+cd %mainDir%
+dotnet new classlib -n %namespace%ObjectService -f netcoreapp3.1
+cd %namespace%ObjectService
+dotnet add package Microsoft.EntityFrameworkCore
+dotnet add package Microsoft.EntityFrameworkCore.SqlServer
+dotnet add package Microsoft.EntityFrameworkCore.Tools
+dotnet add package ReferencesToNuGet -v 1.2020.1015.3
+dotnet add reference %mainDir%\%namespace%Cap
+dotnet add reference %planObjectPath%
+cd %generatorDir%
+CSODataGenerator.exe "ObjectService"
+cd %mainDir%\%namespace%ObjectService\
+dotnet build
+
+cd %mainDir%
+dotnet new mvc -n %namespace%ODataService -f netcoreapp3.1
+cd %namespace%ODataService
+dotnet add package Microsoft.EntityFrameworkCore
+dotnet add package Microsoft.EntityFrameworkCore.SqlServer
+dotnet add package Microsoft.EntityFrameworkCore.Tools
+dotnet add package Microsoft.AspNetCore.OData
+dotnet add package Microsoft.AspNet.StaticFiles
+dotnet add package Microsoft.Data.OData
+dotnet add package ReferencesToNuGet -v 1.2020.1015.3
+dotnet add reference %mainDir%\%namespace%Cap
+dotnet add reference %planObjectPath%
+dotnet add reference %mainDir%\%namespace%ObjectService
+cd %generatorDir%
+CSODataGenerator.exe "ODataController"
+CSODataGenerator.exe "Csproj"
+CSODataGenerator.exe "Kestrel"
+CSODataGenerator.exe "Startup"
+CSODataGenerator.exe "OpenApiDocument"
+
+cd %mainDir%\%namespace%ODataService\
+cd Document
+call npm install -g redoc-cli
+call redoc-cli bundle -o index.html OpenApiDocument.json
+
+cd %mainDir%
+dotnet new mvc -n %namespace%UpsertService -f netcoreapp3.1
+cd %namespace%UpsertService
+dotnet add package Newtonsoft.Json
+dotnet add package ReferencesToNuGet -v 1.2020.1015.3
+dotnet add reference %planObjectPath%
+cd %generatorDir%
+CSODataGenerator.exe "UpsertController"
+CSODataGenerator.exe "UpsertService"
+CSODataGenerator.exe "UpsertResponse"
+CSODataGenerator.exe "UpsertServiceStartup"
+CSODataGenerator.exe "Ac4yRestServiceClient"
+cd %mainDir%\%namespace%UpsertService
+dotnet build
+start cmd /K dotnet run --urls "http://localhost:6000/;https://localhost:6001/"
+
+cd %mainDir%\%namespace%ODataService\
+dotnet build
+cd bin\Debug\netcoreapp3.1
+start cmd /K %namespace%ODataService.exe
+start https://localhost:5001/document/index.html
+
+
+

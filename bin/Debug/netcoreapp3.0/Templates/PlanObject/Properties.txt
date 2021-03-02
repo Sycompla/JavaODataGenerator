@@ -1,0 +1,3 @@
+﻿	
+	@Column(name = "#propertyName#")
+	private #type# #propertyName#;

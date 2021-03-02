@@ -1,0 +1,1 @@
+﻿    			entity.addProperty(new Property(null, "#propertyName#", ValueType.PRIMITIVE, #classNameSmall#.get#propertyName#()));

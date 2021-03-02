@@ -1,0 +1,186 @@
+﻿
+	  private OData odata;
+	  private Storage storage;
+	  private ServiceMetadata serviceMetadata;
+
+
+	  public ODataEntityCollectionProcessor(Storage storage) {
+	    this.storage = storage;
+	  }
+
+
+	  public void init(OData odata, ServiceMetadata serviceMetadata) {
+	    this.odata = odata;
+	    this.serviceMetadata = serviceMetadata;
+	  }
+  public void readEntityCollection(ODataRequest request, ODataResponse response, UriInfo uriInfo, ContentType responseFormat) throws ODataApplicationException, SerializerException {
+
+	    List<UriResource> resourcePaths = uriInfo.getUriResourceParts();
+	    UriResourceEntitySet uriResourceEntitySet = (UriResourceEntitySet) resourcePaths.get(0);
+	    EdmEntitySet edmEntitySet = uriResourceEntitySet.getEntitySet();
+
+	    EntityCollection entityCollection = storage.readEntitySetData(edmEntitySet);
+	    EntityCollection returnEntityCollection = new EntityCollection();
+	    
+	    //entityCollection = getData(edmEntitySet);
+
+	    SelectOption selectOption = uriInfo.getSelectOption();
+
+     CountOption countOption = uriInfo.getCountOption();
+     if (countOption != null) {
+       boolean isCount = countOption.getValue();
+       if (isCount) {
+     	  entityCollection.setCount(entityCollection.getEntities().size());
+     	  returnEntityCollection.setCount(entityCollection.getEntities().size());
+       }
+     }
+          
+     List<Entity> entityList = null;
+          
+     SkipOption skipOption = uriInfo.getSkipOption();
+     entityList = new Util().skipOptionMethod(skipOption, entityCollection, entityList);
+     
+     TopOption topOption = uriInfo.getTopOption();
+     entityList = new Util().topOptionMethod(topOption, entityCollection, entityList);
+
+     if(entityList != null) {
+ 	    for(Entity entity : entityList) {
+ 	    	returnEntityCollection.getEntities().add(entity);
+ 	    }
+     }
+
+     OrderByOption orderByOption = uriInfo.getOrderByOption();
+     if (orderByOption != null) {
+         List<OrderByItem> orderItemList = orderByOption.getOrders();
+         final OrderByItem orderByItem = orderItemList.get(0); // we support only one
+         Expression expression = orderByItem.getExpression();
+         if(expression instanceof Member){
+             UriInfoResource resourcePath = ((Member)expression).getResourcePath();
+             UriResource uriResource = resourcePath.getUriResourceParts().get(0);
+             if (uriResource instanceof UriResourcePrimitiveProperty) {
+                 EdmProperty edmProperty = ((UriResourcePrimitiveProperty)uriResource).getProperty();
+                 final String sortPropertyName = edmProperty.getName();
+
+                 if(returnEntityCollection.getEntities().size() == 0) {
+                 	Collections.sort(entityCollection.getEntities(), new Comparator<Entity>() {
+                 
+ 	                    public int compare(Entity entity1, Entity entity2) {
+ 	                        int compareResult = 0;
+ 	
+ 	                        if(sortPropertyName.equals("ID")){
+ 	                            Integer integer1 = (Integer) entity1.getProperty(sortPropertyName).getValue();
+ 	                            Integer integer2 = (Integer) entity2.getProperty(sortPropertyName).getValue();
+ 	
+ 	                            compareResult = integer1.compareTo(integer2);
+ 	                        }else{
+ 	                            String propertyValue1 = (String) entity1.getProperty(sortPropertyName).getValue();
+ 	                            String propertyValue2 = (String) entity2.getProperty(sortPropertyName).getValue();
+ 	
+ 	                            compareResult = propertyValue1.compareTo(propertyValue2);
+ 	                        }
+ 	
+ 	                        if(orderByItem.isDescending()){
+ 	                            return - compareResult; // just reverse order
+ 	                        }
+ 	
+ 	                        return compareResult;
+ 	                    }
+ 	                });
+                 } else {
+                 	Collections.sort(returnEntityCollection.getEntities(), new Comparator<Entity>() {
+                         
+     	                    public int compare(Entity entity1, Entity entity2) {
+     	                        int compareResult = 0;
+     	
+     	                        if(sortPropertyName.equals("ID")){
+     	                            Integer integer1 = (Integer) entity1.getProperty(sortPropertyName).getValue();
+     	                            Integer integer2 = (Integer) entity2.getProperty(sortPropertyName).getValue();
+     	
+     	                            compareResult = integer1.compareTo(integer2);
+     	                        }else{
+     	                            String propertyValue1 = (String) entity1.getProperty(sortPropertyName).getValue();
+     	                            String propertyValue2 = (String) entity2.getProperty(sortPropertyName).getValue();
+     	
+     	                            compareResult = propertyValue1.compareTo(propertyValue2);
+     	                        }
+     	
+     	                        if(orderByItem.isDescending()){
+     	                            return - compareResult; // just reverse order
+     	                        }
+     	
+     	                        return compareResult;
+     	                    }
+     	                });
+                 }
+             }
+         }
+     }
+     
+
+ 	FilterOption filterOption = uriInfo.getFilterOption();
+ 	if(filterOption != null) {
+ 		try {
+ 			
+ 			if(returnEntityCollection.getEntities().size() == 0) {
+ 				entityList = entityCollection.getEntities();
+ 			} else {
+ 				entityList = returnEntityCollection.getEntities();
+ 			}
+ 		    Iterator<Entity> entityIterator = entityList.iterator();
+ 			
+ 		      while (entityIterator.hasNext()) {
+ 		    	  Entity currentEntity = entityIterator.next();
+ 		    	  Expression filterExpression = filterOption.getExpression();
+ 		    	  FilterExpressionVisitor expressionVisitor = new FilterExpressionVisitor(currentEntity);
+ 		    	  
+ 		    	  Object visitorResult = filterExpression.accept(expressionVisitor);
+ 		    	  
+ 		    	  if(visitorResult instanceof Boolean) {
+ 		    		  if(!Boolean.TRUE.equals(visitorResult)) {
+ 		    		    entityIterator.remove();
+ 		    		  }
+ 		    	  } else {
+ 		    		  throw new ODataApplicationException("A filter expression must evaulate to type Edm.Boolean", 
+ 		    		      HttpStatusCode.BAD_REQUEST.getStatusCode(), Locale.ENGLISH);
+ 		    	  }
+ 		      }
+
+ 		    } catch (ExpressionVisitException e) {
+ 		      throw new ODataApplicationException("Exception in filter evaluation",
+ 		          HttpStatusCode.INTERNAL_SERVER_ERROR.getStatusCode(), Locale.ENGLISH);
+ 		    }
+ 	}
+ 	
+
+     EdmEntityType edmEntityType = edmEntitySet.getEntityType();
+     String selectList = odata.createUriHelper().buildContextURLSelectList(edmEntityType,
+    		 																null, selectOption);
+
+     ContextURL contextUrl = ContextURL
+    		 				.with()
+    		 				.entitySet(edmEntitySet)
+    		 				.selectList(selectList)
+    		 				.build();
+
+     final String id = request.getRawBaseUri() + "/" + edmEntitySet.getName();
+     EntityCollectionSerializerOptions opts = EntityCollectionSerializerOptions.with()
+         .contextURL(contextUrl)
+         .select(selectOption)
+         .expand(null)
+         .count(countOption)
+         .build();
+
+     ODataSerializer serializer = odata.createSerializer(responseFormat);
+     SerializerResult serializerResult = null;
+     if(returnEntityCollection.getEntities().size() == 0) {
+     	serializerResult = serializer.entityCollection(serviceMetadata, edmEntityType, entityCollection, opts);
+     } else {
+     	serializerResult = serializer.entityCollection(serviceMetadata, edmEntityType, returnEntityCollection, opts);
+         	
+     }
+     
+    response.setContent(serializerResult.getContent());
+    response.setStatusCode(HttpStatusCode.OK.getStatusCode());
+    response.setHeader(HttpHeader.CONTENT_TYPE, responseFormat.toContentTypeString());
+  }
+

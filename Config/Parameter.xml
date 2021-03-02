@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<CSODataGeneratorParameter xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+  <PlanObjectReferenceList>
+
+<!--
+    <PlanObjectReference>
+      <namespaceName>Ac4yClassModule.Class.</namespaceName>
+      <className>Ac4yClass</className>
+    </PlanObjectReference>
+
+    <PlanObjectReference>
+      <namespaceName>Ac4yClassModule.Class.</namespaceName>
+      <className>Ac4yModule</className>
+    </PlanObjectReference>
+
+    <PlanObjectReference>
+      <namespaceName>Ac4yClassModule.Class.</namespaceName>
+      <className>Ac4yProperty</className>
+    </PlanObjectReference>
+
+    <PlanObjectReference>
+      <namespaceName>Ac4yClassModule.Class.</namespaceName>
+      <className>Cardinality</className>
+    </PlanObjectReference>
+
+    <PlanObjectReference>
+      <namespaceName>Ac4yClassModule.Class.</namespaceName>
+      <className>Complexity</className>
+    </PlanObjectReference>
+
+    <PlanObjectReference>
+      <namespaceName>Ac4yClassModule.Class.</namespaceName>
+      <className>WidgetType</className>
+    </PlanObjectReference>
+-->
+
+    <PlanObjectReference>
+      <namespaceName>CSUsers.</namespaceName>
+      <className>User</className>
+    </PlanObjectReference>
+
+    <PlanObjectReference>
+      <namespaceName>CSUsers.</namespaceName>
+      <className>UserToken</className>
+    </PlanObjectReference>
+
+    <PlanObjectReference>
+      <namespaceName>CSUsers.</namespaceName>
+      <className>AuthenticationRequest</className>
+    </PlanObjectReference>
+
+
+  </PlanObjectReferenceList>
+
+</CSODataGeneratorParameter>

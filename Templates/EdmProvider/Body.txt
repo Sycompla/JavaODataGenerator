@@ -1,0 +1,75 @@
+﻿
+  public static final String NAMESPACE = "OData.Service";
+
+  public static final String CONTAINER_NAME = "Container";
+  public static final FullQualifiedName CONTAINER = new FullQualifiedName(NAMESPACE, CONTAINER_NAME);
+
+  #finalNames#
+
+
+  @Override
+  public List<CsdlSchema> getSchemas() {
+
+    CsdlSchema schema = new CsdlSchema();
+    schema.setNamespace(NAMESPACE);
+
+    List<CsdlEntityType> entityTypes = new ArrayList<CsdlEntityType>();
+    #entityTypes#
+    schema.setEntityTypes(entityTypes);
+
+    schema.setEntityContainer(getEntityContainer());
+
+    List<CsdlSchema> schemas = new ArrayList<CsdlSchema>();
+    schemas.add(schema);
+
+    return schemas;
+  }
+
+
+  @Override
+  public CsdlEntityType getEntityType(FullQualifiedName entityTypeName) {
+
+	    CsdlEntityType entityType = null;
+
+        #addEntityProperties#
+
+    return entityType;
+  }
+
+  @Override
+  public CsdlEntitySet getEntitySet(FullQualifiedName entityContainer, String entitySetName) {
+	    CsdlEntitySet entitySet = null;
+
+	    if (entityContainer.equals(CONTAINER)) {
+
+            #addEntitySetsToContainer#
+
+    }
+
+    return entitySet;
+  }
+
+  @Override
+  public CsdlEntityContainer getEntityContainer() {
+
+    List<CsdlEntitySet> entitySets = new ArrayList<CsdlEntitySet>();
+    #addEntitySets#
+
+    CsdlEntityContainer entityContainer = new CsdlEntityContainer();
+    entityContainer.setName(CONTAINER_NAME);
+    entityContainer.setEntitySets(entitySets);
+
+    return entityContainer;
+  }
+
+  @Override
+  public CsdlEntityContainerInfo getEntityContainerInfo(FullQualifiedName entityContainerName) {
+
+   if(entityContainerName == null || entityContainerName.equals(CONTAINER)){
+      CsdlEntityContainerInfo entityContainerInfo = new CsdlEntityContainerInfo();
+      entityContainerInfo.setContainerName(CONTAINER);
+      return entityContainerInfo;
+    }
+
+    return null;
+  }

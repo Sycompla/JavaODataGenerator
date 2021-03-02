@@ -1,0 +1,210 @@
+﻿
+
+	private SessionFactory factory = null;
+	private Util util = null;
+	
+	public #className#HibernateCap() {
+		this.factory = new Configuration()
+							 .configure("hibernate.cfg.xml")
+							 #annotatedClasses#
+							 .buildSessionFactory();
+		
+		this.util = new Util();
+	}
+
+	
+
+    public List<Entity> getData() {
+
+    	Session session = factory.openSession();
+    	List<Entity> entities = new ArrayList<Entity>();
+    	
+    	try {
+    		
+    		Query<#className#> theQuery = 
+    				session.createQuery("from #className#",
+    											#className#.class);
+    		
+    		List<#className#> #classNameSmall#s = theQuery.getResultList();
+    		
+    		for(#className# #classNameSmall# : #classNameSmall#s) {
+    			Entity entity = new Entity();
+    			
+				#addProperties#
+    			
+    			entities.add(entity);
+    		}
+    		
+    		return entities;
+    		
+    	} catch (Exception exception) {
+			exception.printStackTrace();
+			return entities;
+		} finally {
+			session.close();
+			factory.close();
+		}
+
+    }
+	/*
+    public List<Entity> getRelatedDataCollection(int theId) {
+
+    	Session session = factory.openSession();
+    	List<Entity> entities = new ArrayList<Entity>();
+    	
+    	try {			
+			Category tempCategory = session.get(Category.class, theId);
+			List<Product> products = tempCategory.getProducts();
+			
+			if(products.size() > 0) {
+				for(Product product : products) {
+					Entity entity = new Entity();
+						
+					entity.addProperty(new Property(null, "Id", ValueType.PRIMITIVE, product.getId()))
+						  .addProperty(new Property(null, "Name", ValueType.PRIMITIVE, product.getName()))
+						  .addProperty(new Property(null, "Description", ValueType.PRIMITIVE, product.getDescription()));
+				
+					entities.add(entity);
+				}
+				return entities;
+				
+			} else {
+				return entities;
+			}
+    	} catch (Exception exception) {
+			exception.printStackTrace();
+			return entities;
+		} finally {
+			session.close();
+			factory.close();
+		}
+
+    }*/
+    
+    public EntityCollection getCollection() {
+    	List<Entity> entities = getData();
+    	
+    	EntityCollection entitySet = makeEntityCollection(entities);
+    	
+    	return entitySet;
+    }
+
+	private EntityCollection makeEntityCollection(List<Entity> entities) {
+	    EntityCollection entitySet = new EntityCollection();
+
+	    for (Entity entity: entities){
+	        entitySet.getEntities().add(entity);
+	    }
+
+	    return entitySet;
+	}
+	/*
+    public EntityCollection getRelatedCollection(int id) {
+    	List<Entity> entities = getRelatedDataCollection(id);
+    	
+    	EntityCollection entitySet = makeEntityCollection(entities);
+    	
+    	return entitySet;
+    }*/
+    
+	public Entity insert(Entity entity) {
+		
+		HashMap<String, String> properties = util.propertiesToHashMap(entity);
+		
+		Session session = factory.openSession();
+		
+		try {
+			
+			#className# temp#className# = new #className#(#propertiesInsert#);
+			
+			session.beginTransaction();
+			
+			session.save(temp#className#);
+			
+			entity.getProperties().add(new Property(null, "Id", ValueType.PRIMITIVE, temp#className#.getId()));
+			
+			session.getTransaction().commit();
+			
+			return entity;
+			
+		} catch (Exception exception) {
+			
+			exception.printStackTrace();
+			return null;
+		} finally {
+			session.close();
+			factory.close();
+		}
+	}
+	
+	public Entity update(Entity entity) {
+		
+		HashMap<String, String> properties = util.propertiesToHashMap(entity);
+
+		Session session = factory.openSession();
+		
+		try {
+			
+			#className# temp#className# = session.get(#className#.class, Integer.parseInt(properties.get("Id")));
+			
+			#setProperties#
+			
+			session.beginTransaction();
+			
+			session.update(temp#className#);
+			
+			entity.getProperties().add(new Property(null, "Id", ValueType.PRIMITIVE, temp#className#.getId()));
+			
+			session.getTransaction().commit();
+			
+			return entity;
+			
+		} catch (Exception exception) {
+			
+			exception.printStackTrace();
+			return null;
+		} finally {
+			session.close();
+			factory.close();
+		}
+	}
+	
+	public void delete(int theId) {
+
+		Session session = factory.openSession();
+		
+		try {
+			
+			#className# temp#className# = session.get(#className#.class, theId);
+			
+			session.beginTransaction();
+			
+			session.delete(temp#className#);
+			
+			session.getTransaction().commit();
+					
+		} catch (Exception exception) {
+			
+			exception.printStackTrace();
+		} finally {
+			session.close();
+			factory.close();
+		}
+	}
+
+	public Date getDateTime(String dateString)
+	{
+		Date date = null;
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+		try
+		{
+			date = dateFormat.parse(dateString);
+		}
+		catch (Exception e)
+		{
+			date = new Date(System.currentTimeMillis());
+			return date;
+		}
+
+		return date;
+	}

@@ -1,0 +1,2 @@
+﻿
+      CsdlProperty #propertyNameSmall# = new CsdlProperty().setName("#propertyName#").setType(EdmPrimitiveTypeKind.#type#.getFullQualifiedName());

@@ -1,0 +1,22 @@
+﻿{
+  "ROOTDIRECTORY": "#rootDirectory#",
+
+  "PORTNUMBER": "8888",
+  "IPADDRESS": "89.40.120.71",
+  "NAMESPACE": "#namespace#",
+  "CONNECTIONSTRING": "Server=89.40.120.71;Database=#databaseName#;Trusted_Connection=False;uid=SA;pwd=Sycompla9999*;",
+
+  "LIBRARYPATH": "#libraryPath#",
+  "PLANOBJECTNAMESPACE": "#planObjectNamespace#",
+
+  "LINUXPATH": "/home/d7p4n4/webapp/",
+  "LINUXSERVICEFILEDESCRIPTION": "OData Service for 2 comboboxes",
+
+  "PARAMETERPATH": "Config\\",
+  "PARAMETERFILENAME": "Parameter.xml",
+  "XMLPATH": "#xmlPath#",
+  "PLANOBJECTFOLDERNAME": "#planObjectFolderName#",
+
+  "ODATAURL": "https://localhost:5001/odata"
+
+}

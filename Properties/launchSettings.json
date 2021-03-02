@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "JavaODataGenerator": {
+      "commandName": "Project",
+      "commandLineArgs": "EntityCollectionProvider"
+    }
+  }
+}

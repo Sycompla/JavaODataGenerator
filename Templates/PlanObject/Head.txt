@@ -1,0 +1,24 @@
+﻿package #package#.entity;
+
+import java.util.List;
+import java.util.Date;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Table;
+
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+
+@Entity
+@Table(name = "#className#s", catalog = "#dbName#", schema = "dbo")
+public class #className# {
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "Id")
+	private int Id;

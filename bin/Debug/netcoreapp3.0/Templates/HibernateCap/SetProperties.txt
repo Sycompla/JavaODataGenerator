@@ -1,0 +1,1 @@
+﻿				temp#className#.set#propertyName#(properties.get("#propertyName#"));
